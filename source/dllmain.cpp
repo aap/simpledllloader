@@ -1,8 +1,4 @@
 #include "dllmain.h"
-#if !X64
-#include <d3d8to9\source\d3d8to9.hpp>
-extern "C" Direct3D8 *WINAPI Direct3DCreate8(UINT SDKVersion);
-#endif
 
 HMODULE hm;
 bool bLoadedPluginsYet, bOriginalLibraryLoaded;
@@ -35,12 +31,6 @@ enum Kernel32ExportsData
 
 size_t Kernel32Data[Kernel32ExportsNamesCount][Kernel32ExportsDataCount];
 
-#if !X64
-#define IDR_VBHKD   101
-#define IDR_WNDMODE 103
-#define IDR_WNDWINI 104
-#endif
-
 void LoadOriginalLibrary()
 {
     bOriginalLibraryLoaded = true;
@@ -53,34 +43,7 @@ void LoadOriginalLibrary()
     strcat_s(szSystemPath, SelfName);
 
 #if !X64
-    if (_stricmp(SelfName + 1, "vorbisFile.dll") == NULL)
-    {
-        HRSRC hResource = FindResource(hm, MAKEINTRESOURCE(IDR_VBHKD), RT_RCDATA);
-        if (hResource)
-        {
-            HGLOBAL hLoadedResource = LoadResource(hm, hResource);
-            if (hLoadedResource)
-            {
-                LPVOID pLockedResource = LockResource(hLoadedResource);
-                if (pLockedResource)
-                {
-                    size_t dwResourceSize = SizeofResource(hm, hResource);
-                    if (0 != dwResourceSize)
-                    {
-                        vorbisfile.LoadOriginalLibrary(MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize));
-
-                        // Unprotect the module NOW (CLEO 4.1.1.30f crash fix)
-                        auto hExecutableInstance = (size_t)GetModuleHandle(NULL);
-                        IMAGE_NT_HEADERS* ntHeader = (IMAGE_NT_HEADERS*)(hExecutableInstance + ((IMAGE_DOS_HEADER*)hExecutableInstance)->e_lfanew);
-                        SIZE_T size = ntHeader->OptionalHeader.SizeOfImage;
-                        DWORD oldProtect;
-                        VirtualProtect((VOID*)hExecutableInstance, size, PAGE_EXECUTE_READWRITE, &oldProtect);
-                    }
-                }
-            }
-        }
-    }
-    else if (_stricmp(SelfName + 1, "dsound.dll") == NULL) {
+    if (_stricmp(SelfName + 1, "dsound.dll") == NULL) {
         dsound.LoadOriginalLibrary(LoadLibrary(szSystemPath));
     }
     else if (_stricmp(SelfName + 1, "dinput8.dll") == NULL) {
@@ -91,8 +54,6 @@ void LoadOriginalLibrary()
     }
     else if (_stricmp(SelfName + 1, "d3d8.dll") == NULL) {
         d3d8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-        if (GetPrivateProfileInt("globalsets", "used3d8to9", FALSE, iniPath))
-            d3d8.Direct3DCreate8 = (FARPROC)Direct3DCreate8;
     }
     else if (_stricmp(SelfName + 1, "d3d9.dll") == NULL) {
         d3d9.LoadOriginalLibrary(LoadLibrary(szSystemPath));
@@ -135,7 +96,7 @@ void LoadOriginalLibrary()
     }
     else
     {
-        MessageBox(0, "This library isn't supported. Try to rename it to d3d8.dll, d3d9.dll, d3d11.dll, winmmbase.dll, msacm32.dll, dinput.dll, dinput8.dll, dsound.dll, vorbisFile.dll, msvfw32.dll, xlive.dll or ddraw.dll.", "ASI Loader", MB_ICONERROR);
+        MessageBox(0, "This library isn't supported. Try to rename it to d3d8.dll, d3d9.dll, d3d11.dll, winmmbase.dll, msacm32.dll, dinput.dll, dinput8.dll, dsound.dll, vorbisFile.dll, msvfw32.dll, xlive.dll or ddraw.dll.", "DLL Loader", MB_ICONERROR);
         ExitProcess(0);
     }
 #else
@@ -147,7 +108,7 @@ void LoadOriginalLibrary()
         }
         else
         {
-            MessageBox(0, "This library isn't supported. Try to rename it to dsound.dll or dinput8.dll.", "ASI Loader", MB_ICONERROR);
+            MessageBox(0, "This library isn't supported. Try to rename it to dsound.dll or dinput8.dll.", "DLL Loader", MB_ICONERROR);
             ExitProcess(0);
         }
 #endif
@@ -192,50 +153,6 @@ void Direct3D8DisableMaximizedWindowedModeShim()
 }
 #endif
 
-void FindFiles(WIN32_FIND_DATA* fd)
-{
-    char dir[MAX_PATH] = { 0 };
-    GetCurrentDirectory(MAX_PATH, dir);
-
-    HANDLE asiFile = FindFirstFile("*.asi", fd);
-    if (asiFile != INVALID_HANDLE_VALUE)
-    {
-        do {
-            if (!(fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            {
-                auto pos = strlen(fd->cFileName);
-
-                if (fd->cFileName[pos - 4] == '.' &&
-                   (fd->cFileName[pos - 3] == 'a' || fd->cFileName[pos - 3] == 'A') &&
-                   (fd->cFileName[pos - 2] == 's' || fd->cFileName[pos - 2] == 'S') &&
-                   (fd->cFileName[pos - 1] == 'i' || fd->cFileName[pos - 1] == 'I'))
-                {
-                    char path[MAX_PATH] = { 0 };
-                    strcat(path, dir);
-                    strcat(path, "\\");
-                    strcat(path, fd->cFileName);
-
-                    auto h = LoadLibrary(path);
-                    SetCurrentDirectory(dir); //in case asi switched it
-
-                    if (h == NULL)
-                    {
-                        char msg[200] = { 0 }; char err[15];
-                        strcat(msg, "Unable to load ");
-                        strcat(msg, fd->cFileName);
-                        strcat(msg, ". Error: ");
-                        sprintf(err, "%d", GetLastError());
-                        strcat(msg, err);
-
-                        MessageBox(0, msg, "ASI Loader", MB_ICONERROR);
-                    }
-                }
-            }
-        } while (FindNextFile(asiFile, fd));
-        FindClose(asiFile);
-    }
-}
-
 void LoadPlugins()
 {
     char oldDir[MAX_PATH]; // store the current directory
@@ -246,80 +163,24 @@ void LoadPlugins()
     *strrchr(selfPath, '\\') = '\0';
     SetCurrentDirectory(selfPath);
 
-#if !X64
-    LoadLibrary(".\\modloader\\modupdater.asi");
-    LoadLibrary(".\\modloader\\modloader.asi");
-
-    std::fstream wndmode_ini;
-    wndmode_ini.open("wndmode.ini", std::ios_base::out | std::ios_base::in | std::ios_base::binary);
-    if (wndmode_ini.is_open())
-    {
-        wndmode_ini.seekg(0, wndmode_ini.end);
-        bool bIsEmpty = !wndmode_ini.tellg();
-        wndmode_ini.seekg(wndmode_ini.tellg(), wndmode_ini.beg);
-
-        if (bIsEmpty)
-        {
-            HRSRC hResource = FindResource(hm, MAKEINTRESOURCE(IDR_WNDWINI), RT_RCDATA);
-            if (hResource)
-            {
-                HGLOBAL hLoadedResource = LoadResource(hm, hResource);
-                if (hLoadedResource)
-                {
-                    LPVOID pLockedResource = LockResource(hLoadedResource);
-                    if (pLockedResource)
-                    {
-                        DWORD dwResourceSize = SizeofResource(hm, hResource);
-                        if (0 != dwResourceSize)
-                        {
-                            wndmode_ini.write((char*)pLockedResource, dwResourceSize);
-                        }
-                    }
-                }
-            }
-        }
-
-        wndmode_ini.close();
-
-        HRSRC hResource = FindResource(hm, MAKEINTRESOURCE(IDR_WNDMODE), RT_RCDATA);
-        if (hResource)
-        {
-            HGLOBAL hLoadedResource = LoadResource(hm, hResource);
-            if (hLoadedResource)
-            {
-                LPVOID pLockedResource = LockResource(hLoadedResource);
-                if (pLockedResource)
-                {
-                    DWORD dwResourceSize = SizeofResource(hm, hResource);
-                    if (0 != dwResourceSize)
-                    {
-                        MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-                    }
-                }
-            }
-        }
-    }
-#endif
-
-    auto nWantsToLoadPlugins = GetPrivateProfileInt("globalsets", "loadplugins", TRUE, iniPath);
-    auto nWantsToLoadFromScriptsOnly = GetPrivateProfileInt("globalsets", "loadfromscriptsonly", FALSE, iniPath);
-
-    if (nWantsToLoadPlugins)
-    {
-        WIN32_FIND_DATA fd;
-        if (!nWantsToLoadFromScriptsOnly)
-            FindFiles(&fd);
-
-        SetCurrentDirectory(selfPath);
-
-        if (SetCurrentDirectory("scripts\\"))
-            FindFiles(&fd);
-
-        SetCurrentDirectory(selfPath);
-
-        if (SetCurrentDirectory("plugins\\"))
-            FindFiles(&fd);
-    }
+	char path[MAX_PATH], *p, *q;
+	FILE *f = fopen("dlls.cfg", "r");
+	if(f == NULL)
+		return;
+	while(fgets(path, MAX_PATH, f)){
+		p  = path;
+		while(*p && isspace(*p)) p++;
+		if(*p == '\0' || *p == '#')
+			continue;
+		q = p;
+		while(*q) q++;
+		q--;
+		while(isspace(*q)) q--;
+		q[1] = '\0';
+		LoadLibrary(p);
+	}
+	fclose(f);
+	getchar();
 
     SetCurrentDirectory(oldDir); // Reset the current directory
 }
@@ -638,7 +499,7 @@ void Init()
 {
     GetModuleFileName(hm, iniPath, MAX_PATH);
     *strrchr(iniPath, '\\') = '\0';
-    strcat_s(iniPath, "\\scripts\\global.ini");
+    strcat_s(iniPath, "\\dllloader.ini");
 
     auto nForceEPHook = GetPrivateProfileInt("globalsets", "forceentrypointhook", TRUE, iniPath);
 
