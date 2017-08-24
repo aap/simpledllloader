@@ -43,74 +43,74 @@ void LoadOriginalLibrary()
     strcat_s(szSystemPath, SelfName);
 
 #if !X64
-    if (_stricmp(SelfName + 1, "dsound.dll") == NULL) {
-        dsound.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "dinput8.dll") == NULL) {
-        dinput8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "ddraw.dll") == NULL) {
-        ddraw.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "d3d8.dll") == NULL) {
-        d3d8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "d3d9.dll") == NULL) {
-        d3d9.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "d3d11.dll") == NULL) {
-        d3d11.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "winmmbase.dll") == NULL) {
-        winmmbase.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "msacm32.dll") == NULL) {
-        msacm32.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "dinput.dll") == NULL) {
-        dinput.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "msvfw32.dll") == NULL) {
-        msvfw32.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-    }
-    else if (_stricmp(SelfName + 1, "xlive.dll") == NULL) {
-        // Unprotect image - make .text and .rdata section writeable
-        // get load address of the exe
-        size_t dwLoadOffset = (size_t)GetModuleHandle(NULL);
-        BYTE * pImageBase = reinterpret_cast<BYTE *>(dwLoadOffset);
-        PIMAGE_DOS_HEADER   pDosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(dwLoadOffset);
-        PIMAGE_NT_HEADERS   pNtHeader = reinterpret_cast<PIMAGE_NT_HEADERS>(pImageBase + pDosHeader->e_lfanew);
-        PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION(pNtHeader);
+	if(_stricmp(SelfName + 1, "vorbisFile.dll") == 0){
+		strcpy(SelfName+1, "vorbisFileHooked.dll");
+		HMODULE module = LoadLibrary(SelfPath);
+		if(module == 0){
+			MessageBox(0, "Could not load library vorbisFileHooked.dll", "DLL Loader", MB_ICONERROR);
+			ExitProcess(0);
+		}
+		vorbisfile.LoadOriginalLibrary(module);
 
-        for (int iSection = 0; iSection < pNtHeader->FileHeader.NumberOfSections; ++iSection, ++pSection) {
-            char * pszSectionName = reinterpret_cast<char *>(pSection->Name);
-            if (!strcmp(pszSectionName, ".text") || !strcmp(pszSectionName, ".rdata")) {
-                DWORD dwPhysSize = (pSection->Misc.VirtualSize + 4095) & ~4095;
-                DWORD	oldProtect;
-                DWORD   newProtect = (pSection->Characteristics & IMAGE_SCN_MEM_EXECUTE) ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE;
-                if (!VirtualProtect(reinterpret_cast <VOID *>(dwLoadOffset + pSection->VirtualAddress), dwPhysSize, newProtect, &oldProtect)) {
-                    ExitProcess(0);
-                }
-            }
-        }
-    }
-    else
-    {
-        MessageBox(0, "This library isn't supported. Try to rename it to d3d8.dll, d3d9.dll, d3d11.dll, winmmbase.dll, msacm32.dll, dinput.dll, dinput8.dll, dsound.dll, vorbisFile.dll, msvfw32.dll, xlive.dll or ddraw.dll.", "DLL Loader", MB_ICONERROR);
-        ExitProcess(0);
-    }
+		// Unprotect the module NOW (CLEO 4.1.1.30f crash fix)
+		auto hExecutableInstance = (size_t)GetModuleHandle(NULL);
+		IMAGE_NT_HEADERS* ntHeader = (IMAGE_NT_HEADERS*)(hExecutableInstance + ((IMAGE_DOS_HEADER*)hExecutableInstance)->e_lfanew);
+		SIZE_T size = ntHeader->OptionalHeader.SizeOfImage;
+		DWORD oldProtect;
+		VirtualProtect((VOID*)hExecutableInstance, size, PAGE_EXECUTE_READWRITE, &oldProtect);
+	}else if (_stricmp(SelfName + 1, "dsound.dll") == 0)
+		dsound.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "dinput8.dll") == 0)
+		dinput8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "ddraw.dll") == 0)
+		ddraw.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "d3d8.dll") == 0)
+		d3d8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "d3d9.dll") == 0)
+		d3d9.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "d3d11.dll") == 0)
+		d3d11.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "winmmbase.dll") == 0)
+		winmmbase.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "msacm32.dll") == 0)
+		msacm32.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "dinput.dll") == 0)
+		dinput.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "msvfw32.dll") == 0)
+		msvfw32.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "xlive.dll") == 0){
+		// Unprotect image - make .text and .rdata section writeable
+		// get load address of the exe
+		size_t dwLoadOffset = (size_t)GetModuleHandle(NULL);
+		BYTE * pImageBase = reinterpret_cast<BYTE *>(dwLoadOffset);
+		PIMAGE_DOS_HEADER   pDosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(dwLoadOffset);
+		PIMAGE_NT_HEADERS   pNtHeader = reinterpret_cast<PIMAGE_NT_HEADERS>(pImageBase + pDosHeader->e_lfanew);
+		PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION(pNtHeader);
+
+		for (int iSection = 0; iSection < pNtHeader->FileHeader.NumberOfSections; ++iSection, ++pSection) {
+		    char * pszSectionName = reinterpret_cast<char *>(pSection->Name);
+		    if (!strcmp(pszSectionName, ".text") || !strcmp(pszSectionName, ".rdata")) {
+		        DWORD dwPhysSize = (pSection->Misc.VirtualSize + 4095) & ~4095;
+		        DWORD	oldProtect;
+		        DWORD   newProtect = (pSection->Characteristics & IMAGE_SCN_MEM_EXECUTE) ? PAGE_EXECUTE_READWRITE : PAGE_READWRITE;
+		        if (!VirtualProtect(reinterpret_cast <VOID *>(dwLoadOffset + pSection->VirtualAddress), dwPhysSize, newProtect, &oldProtect)) {
+		            ExitProcess(0);
+		        }
+		    }
+		}
+	}else{
+		MessageBox(0, "This library isn't supported. Try to rename it to d3d8.dll, d3d9.dll, d3d11.dll, winmmbase.dll, msacm32.dll, dinput.dll, dinput8.dll, dsound.dll, vorbisFile.dll, msvfw32.dll, xlive.dll or ddraw.dll.", "DLL Loader", MB_ICONERROR);
+		ExitProcess(0);
+	}
 #else
-        if (_stricmp(SelfName + 1, "dsound.dll") == NULL) {
-            dsound.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-        }
-        else if (_stricmp(SelfName + 1, "dinput8.dll") == NULL) {
-            dinput8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
-        }
-        else
-        {
-            MessageBox(0, "This library isn't supported. Try to rename it to dsound.dll or dinput8.dll.", "DLL Loader", MB_ICONERROR);
-            ExitProcess(0);
-        }
+	if (_stricmp(SelfName + 1, "dsound.dll") == 0)
+		dsound.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else if (_stricmp(SelfName + 1, "dinput8.dll") == 0)
+		dinput8.LoadOriginalLibrary(LoadLibrary(szSystemPath));
+	else{
+		MessageBox(0, "This library isn't supported. Try to rename it to dsound.dll or dinput8.dll.", "DLL Loader", MB_ICONERROR);
+		ExitProcess(0);
+	}
 #endif
 }
 

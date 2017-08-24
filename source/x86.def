@@ -1,3 +1,40 @@
+LIBRARY "vorbisfile"
+EXPORTS
+ov_bitrate = _ov_bitrate
+ov_bitrate_instant = _ov_bitrate_instant
+ov_clear = _ov_clear
+ov_comment = _ov_comment
+ov_crosslap = _ov_crosslap
+ov_halfrate = _ov_halfrate
+ov_halfrate_p = _ov_halfrate_p
+ov_info = _ov_info
+ov_open = _ov_open
+ov_open_callbacks = _ov_open_callbacks
+ov_pcm_seek = _ov_pcm_seek
+ov_pcm_seek_lap = _ov_pcm_seek_lap
+ov_pcm_seek_page = _ov_pcm_seek_page
+ov_pcm_seek_page_lap = _ov_pcm_seek_page_lap
+ov_pcm_tell = _ov_pcm_tell
+ov_pcm_total = _ov_pcm_total
+ov_raw_seek = _ov_raw_seek
+ov_raw_seek_lap = _ov_raw_seek_lap
+ov_raw_tell = _ov_raw_tell
+ov_raw_total = _ov_raw_total
+ov_read = _ov_read
+ov_read_float = _ov_read_float
+ov_seekable = _ov_seekable
+ov_serialnumber = _ov_serialnumber
+ov_streams = _ov_streams
+ov_test = _ov_test
+ov_test_callbacks = _ov_test_callbacks
+ov_test_open = _ov_test_open
+ov_time_seek = _ov_time_seek
+ov_time_seek_lap = _ov_time_seek_lap
+ov_time_seek_page = _ov_time_seek_page
+ov_time_seek_page_lap = _ov_time_seek_page_lap
+ov_time_tell = _ov_time_tell
+ov_time_total = _ov_time_total
+
 LIBRARY "dinput8"
 EXPORTS
 DirectInput8Create = _DirectInput8Create

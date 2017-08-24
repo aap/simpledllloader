@@ -11,6 +11,83 @@
 #pragma comment(lib, "d3d9.lib")
 //#pragma comment(lib, "d3dx9.lib")
 
+struct vorbisfile_dll
+{
+    HMODULE dll;
+    FARPROC ov_bitrate;
+    FARPROC ov_bitrate_instant;
+    FARPROC ov_clear;
+    FARPROC ov_comment;
+    FARPROC ov_crosslap;
+    FARPROC ov_halfrate;
+    FARPROC ov_halfrate_p;
+    FARPROC ov_info;
+    FARPROC ov_open;
+    FARPROC ov_open_callbacks;
+    FARPROC ov_pcm_seek;
+    FARPROC ov_pcm_seek_lap;
+    FARPROC ov_pcm_seek_page;
+    FARPROC ov_pcm_seek_page_lap;
+    FARPROC ov_pcm_tell;
+    FARPROC ov_pcm_total;
+    FARPROC ov_raw_seek;
+    FARPROC ov_raw_seek_lap;
+    FARPROC ov_raw_tell;
+    FARPROC ov_raw_total;
+    FARPROC ov_read;
+    FARPROC ov_read_float;
+    FARPROC ov_seekable;
+    FARPROC ov_serialnumber;
+    FARPROC ov_streams;
+    FARPROC ov_test;
+    FARPROC ov_test_callbacks;
+    FARPROC ov_test_open;
+    FARPROC ov_time_seek;
+    FARPROC ov_time_seek_lap;
+    FARPROC ov_time_seek_page;
+    FARPROC ov_time_seek_page_lap;
+    FARPROC ov_time_tell;
+    FARPROC ov_time_total;
+
+    void LoadOriginalLibrary(HMODULE module)
+    {
+        dll = module;
+        ov_bitrate = GetProcAddress(dll, "ov_bitrate");
+        ov_bitrate_instant = GetProcAddress(dll, "ov_bitrate_instant");
+        ov_clear = GetProcAddress(dll, "ov_clear");
+        ov_comment = GetProcAddress(dll, "ov_comment");
+        ov_crosslap = GetProcAddress(dll, "ov_crosslap");
+        ov_halfrate = GetProcAddress(dll, "ov_halfrate");
+        ov_halfrate_p = GetProcAddress(dll, "ov_halfrate_p");
+        ov_info = GetProcAddress(dll, "ov_info");
+        ov_open = GetProcAddress(dll, "ov_open");
+        ov_open_callbacks = GetProcAddress(dll, "ov_open_callbacks");
+        ov_pcm_seek = GetProcAddress(dll, "ov_pcm_seek");
+        ov_pcm_seek_lap = GetProcAddress(dll, "ov_pcm_seek_lap");
+        ov_pcm_seek_page = GetProcAddress(dll, "ov_pcm_seek_page");
+        ov_pcm_seek_page_lap = GetProcAddress(dll, "ov_pcm_seek_page_lap");
+        ov_pcm_tell = GetProcAddress(dll, "ov_pcm_tell");
+        ov_pcm_total = GetProcAddress(dll, "ov_pcm_total");
+        ov_raw_seek = GetProcAddress(dll, "ov_raw_seek");
+        ov_raw_seek_lap = GetProcAddress(dll, "ov_raw_seek_lap");
+        ov_raw_tell = GetProcAddress(dll, "ov_raw_tell");
+        ov_raw_total = GetProcAddress(dll, "ov_raw_total");
+        ov_read = GetProcAddress(dll, "ov_read");
+        ov_read_float = GetProcAddress(dll, "ov_read_float");
+        ov_seekable = GetProcAddress(dll, "ov_seekable");
+        ov_serialnumber = GetProcAddress(dll, "ov_serialnumber");
+        ov_streams = GetProcAddress(dll, "ov_streams");
+        ov_test = GetProcAddress(dll, "ov_test");
+        ov_test_callbacks = GetProcAddress(dll, "ov_test_callbacks");
+        ov_test_open = GetProcAddress(dll, "ov_test_open");
+        ov_time_seek = GetProcAddress(dll, "ov_time_seek");
+        ov_time_seek_lap = GetProcAddress(dll, "ov_time_seek_lap");
+        ov_time_seek_page = GetProcAddress(dll, "ov_time_seek_page");
+        ov_time_seek_page_lap = GetProcAddress(dll, "ov_time_seek_page_lap");
+        ov_time_tell = GetProcAddress(dll, "ov_time_tell");
+        ov_time_total = GetProcAddress(dll, "ov_time_total");
+    }
+} vorbisfile;
 #endif
 
 struct dinput8_dll
@@ -820,6 +897,41 @@ struct msvfw32_dll
     }
 } msvfw32;
 
+
+__declspec(naked) void _ov_bitrate() { _asm { jmp[vorbisfile.ov_bitrate] } }
+__declspec(naked) void _ov_bitrate_instant() { _asm { jmp[vorbisfile.ov_bitrate_instant] } }
+__declspec(naked) void _ov_clear() { _asm { jmp[vorbisfile.ov_clear] } }
+__declspec(naked) void _ov_comment() { _asm { jmp[vorbisfile.ov_comment] } }
+__declspec(naked) void _ov_crosslap() { _asm { jmp[vorbisfile.ov_crosslap] } }
+__declspec(naked) void _ov_halfrate() { _asm { jmp[vorbisfile.ov_halfrate] } }
+__declspec(naked) void _ov_halfrate_p() { _asm { jmp[vorbisfile.ov_halfrate_p] } }
+__declspec(naked) void _ov_info() { _asm { jmp[vorbisfile.ov_info] } }
+__declspec(naked) void _ov_open() { _asm { jmp[vorbisfile.ov_open] } }
+__declspec(naked) void _ov_open_callbacks() { _asm { jmp[vorbisfile.ov_open_callbacks] } }
+__declspec(naked) void _ov_pcm_seek() { _asm { jmp[vorbisfile.ov_pcm_seek] } }
+__declspec(naked) void _ov_pcm_seek_lap() { _asm { jmp[vorbisfile.ov_pcm_seek_lap] } }
+__declspec(naked) void _ov_pcm_seek_page() { _asm { jmp[vorbisfile.ov_pcm_seek_page] } }
+__declspec(naked) void _ov_pcm_seek_page_lap() { _asm { jmp[vorbisfile.ov_pcm_seek_page_lap] } }
+__declspec(naked) void _ov_pcm_tell() { _asm { jmp[vorbisfile.ov_pcm_tell] } }
+__declspec(naked) void _ov_pcm_total() { _asm { jmp[vorbisfile.ov_pcm_total] } }
+__declspec(naked) void _ov_raw_seek() { _asm { jmp[vorbisfile.ov_raw_seek] } }
+__declspec(naked) void _ov_raw_seek_lap() { _asm { jmp[vorbisfile.ov_raw_seek_lap] } }
+__declspec(naked) void _ov_raw_tell() { _asm { jmp[vorbisfile.ov_raw_tell] } }
+__declspec(naked) void _ov_raw_total() { _asm { jmp[vorbisfile.ov_raw_total] } }
+__declspec(naked) void _ov_read() { _asm { jmp[vorbisfile.ov_read] } }
+__declspec(naked) void _ov_read_float() { _asm { jmp[vorbisfile.ov_read_float] } }
+__declspec(naked) void _ov_seekable() { _asm { jmp[vorbisfile.ov_seekable] } }
+__declspec(naked) void _ov_serialnumber() { _asm { jmp[vorbisfile.ov_serialnumber] } }
+__declspec(naked) void _ov_streams() { _asm { jmp[vorbisfile.ov_streams] } }
+__declspec(naked) void _ov_test() { _asm { jmp[vorbisfile.ov_test] } }
+__declspec(naked) void _ov_test_callbacks() { _asm { jmp[vorbisfile.ov_test_callbacks] } }
+__declspec(naked) void _ov_test_open() { _asm { jmp[vorbisfile.ov_test_open] } }
+__declspec(naked) void _ov_time_seek() { _asm { jmp[vorbisfile.ov_time_seek] } }
+__declspec(naked) void _ov_time_seek_lap() { _asm { jmp[vorbisfile.ov_time_seek_lap] } }
+__declspec(naked) void _ov_time_seek_page() { _asm { jmp[vorbisfile.ov_time_seek_page] } }
+__declspec(naked) void _ov_time_seek_page_lap() { _asm { jmp[vorbisfile.ov_time_seek_page_lap] } }
+__declspec(naked) void _ov_time_tell() { _asm { jmp[vorbisfile.ov_time_tell] } }
+__declspec(naked) void _ov_time_total() { _asm { jmp[vorbisfile.ov_time_total] } }
 
 __declspec(naked) void _DirectInput8Create() { _asm { jmp[dinput8.DirectInput8Create] } }
 

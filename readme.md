@@ -14,6 +14,7 @@ This is a DLL file which adds DLL plugin loading functionality to any game which
 * dsound.dll (x86 and x64)
 * msacm32.dll
 * msvfw32.dll
+* vorbisFile.dll
 * winmmbase.dll
 * xlive.dll
 
@@ -21,6 +22,7 @@ This is a DLL file which adds DLL plugin loading functionality to any game which
 INSTALLATION
 ------------------------
 In order to install it, you just need to place DLL into game directory. Usually it works as dinput8.dll, but if it's not, there is a possibility to rename it(see the list of supported names above).
+In the case of vorbisFile.dll, rename the original vorbisFile.dll to vorbisFileHooked.dll first.
 
 
 USAGE
