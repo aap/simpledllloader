@@ -27,6 +27,6 @@ In the case of vorbisFile.dll, rename the original vorbisFile.dll to vorbisFileH
 
 USAGE
 ------------------------
-create a file "dlls.txt" in the same directory as the DLLloader dll with one file name per line to load as a dll.
+create a file "dlls.cfg" in the same directory as the DLLloader dll with one file name per line to load as a dll.
 The filenames are relative to the dll.
 A # character at the beginning of the line will make the DLLloader ignore it.
