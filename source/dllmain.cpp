@@ -164,7 +164,9 @@ void LoadPlugins()
     SetCurrentDirectory(selfPath);
 
 	char path[MAX_PATH], *p, *q;
-	FILE *f = fopen("dlls.cfg", "r");
+	FILE *f = fopen("plugins.cfg", "r");
+	if(f == NULL)
+		f = fopen("dlls.cfg", "r");
 	if(f == NULL)
 		return;
 	while(fgets(path, MAX_PATH, f)){
